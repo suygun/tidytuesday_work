@@ -4,13 +4,7 @@ date: 2021-03-04
 output: html_output
 ---
 
-# TidyTuesday
 
-Join the R4DS Online Learning Community in the weekly #TidyTuesday event!
-Every week we post a raw dataset, a chart or article related to that dataset, and ask you to explore the data.
-While the dataset will be “tamed”, it will not always be tidy! As such you might need to apply various R for Data Science techniques to wrangle the data into a true tidy format.
-The goal of TidyTuesday is to apply your R skills, get feedback, explore other’s work, and connect with the greater #RStats community!
-As such we encourage everyone of all skills to participate!
 
 ```{r setup, include=FALSE}
 
@@ -18,6 +12,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 library(tidyverse)
 library(tidytuesdayR)
+theme_set(theme_light(16))
+library(scales)
 
 ```
 
@@ -34,12 +30,9 @@ tt <- tt_load("2021-03-02")
 
 # Readme
 
-Take a look at the readme for the weekly data to get insight on the dataset.
-This includes a data dictionary, source, and a link to an article on the data.
-
 ```{r Readme, eval = interactive()}
 
-tt
+yt <- tt$youtube
 
 ```
 
@@ -61,7 +54,7 @@ Explore the data and process it into a nice format for plotting! Access each dat
 
 ```{r Wrangle}
 
-
+tt %>% 
 
 ```
 
