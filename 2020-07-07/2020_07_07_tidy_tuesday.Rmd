@@ -1,0 +1,195 @@
+---
+title: "Coffee ratings"
+author: Sahra Uygun
+date: 2021-06-08
+output: html_output
+---
+
+
+Following: https://github.com/rstats-aficionadas/guidedTidyTuesday
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = FALSE)
+
+library(tidyverse)
+library(tidytuesdayR)
+# library(skimr)
+
+```
+
+# Load the coffee ratings data from July-2020
+
+```{r Load, include=FALSE}
+
+tt <- tt_load("2020-07-07")
+
+```
+
+# Glimpse Data
+
+Take an initial look at the format of the data available.
+
+```{r Glimpse}
+
+tt %>% 
+  map(glimpse)
+
+```
+
+# Read and explore options
+
+Explore the data and process it into a nice format for plotting! Access each dataset by name by using a dollarsign after the `tt` object and then the name of the data set.
+
+```{r read, include=FALSE}
+
+coffee <- tt$coffee_ratings
+# summary(coffee)
+# names(coffee)
+# str(coffee)
+# head(coffee)
+# glimpse(coffee)
+skimr::skim(coffee)
+
+```
+
+Some things to consider:
+
+* missing data
+* data types
+* messy/tidy data
+* R reads mostly as character can be converted to factor
+
+
+```{r Wrangle, include=FALSE}
+
+# coffee %>% 
+#   mutate(species = as_factor(species),
+#          country_of_origin = as_factor(country_of_origin))
+
+coffee <- coffee %>% 
+  mutate(across(c(country_of_origin, species), as_factor))
+
+```
+
+
+# Plots
+
+Cup points by altitude
+
+* total_cup_points
+* altitude_mean_meters
+
+Does coffee grown in higher/lower regions taste better/have better ratings?
+
+
+```{r Visualize}
+
+coffee %>% 
+  filter(altitude_mean_meters < 5000 & total_cup_points > 50) %>%
+  ggplot() +
+  aes(x = altitude_mean_meters, y = total_cup_points,
+      colour = species) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  theme_minimal() +
+  labs(x = "average altitude in metres",
+       y = "total cup points",
+       title = "Total cup points by altitude and coffee species",
+       subtitle = 'I <3 coffee',
+       caption = "Data source: Tidy Tuesday")
+
+  
+```
+
+## Cup points by country
+
+```{r}
+coffee %>% 
+  filter(altitude_mean_meters < 5000 & total_cup_points > 50) %>% 
+  ggplot() +
+  aes(x = altitude_mean_meters, y = total_cup_points,
+      colour = country_of_origin) +
+  geom_point() +
+  #geom_smooth(method = "lm") +
+  theme_minimal() +
+  labs(x = "average altitude in metres",
+       y = "total cup points",
+       title = "Total cup points by altitude and country of origin",
+       subtitle = 'I <3 coffee',
+       caption = "Data source: Tidy Tuesday")
+```
+
+```{r}
+summary(coffee$country_of_origin)
+coffee %>% 
+  count(country_of_origin) %>% 
+  arrange(desc(n))
+```
+
+```{r}
+coffee %>% 
+  filter(country_of_origin %in% c("Mexico", "Colombia", "Guatemala", "Brazil")) %>% 
+  filter(altitude_mean_meters < 5000 & total_cup_points > 50) %>% 
+  ggplot() +
+  aes(x = altitude_mean_meters, y = total_cup_points,
+      colour = country_of_origin) +
+  geom_point() +
+  #geom_smooth(method = "lm") +
+  theme_minimal() +
+  labs(x = "average altitude in metres",
+       y = "total cup points",
+       title = "Total cup points by altitude and country of origin",
+       subtitle = 'I <3 coffee',
+       caption = "Data source: Tidy Tuesday",
+       colour = "country of origin")
+```
+
+
+
+```{r}
+coffee %>% 
+  add_count(country_of_origin, name = "country_n") %>% 
+  filter(country_n > 100 & altitude_mean_meters < 5000 & total_cup_points > 50) %>% 
+  ggplot() +
+  aes(x = altitude_mean_meters, y = total_cup_points,
+      colour = country_of_origin) +
+  geom_point() +
+  #geom_smooth(method = "lm") +
+  theme_minimal() +
+  labs(x = "average altitude in metres",
+       y = "total cup points",
+       title = "Total cup points by altitude and country of origin",
+       subtitle = 'I <3 coffee',
+       caption = "Data source: Tidy Tuesday",
+       colour = "country of origin") 
+coffee %>% 
+  add_count(country_of_origin, name = "country_n") %>% 
+  select(country_of_origin, country_n) %>% 
+  distinct()
+```
+
+## Histograms/density plots
+
+```{r}
+coffee %>% 
+  ggplot() +
+  aes(x = aroma, colour = species, fill = species) +
+  geom_density(alpha = 0.3) +
+  theme_light() +
+  labs(title = "Aroma by coffee species") +
+  scale_fill_manual(values = c("seagreen", "steelblue")) +
+  scale_colour_manual(values = c("seagreen", "steelblue"))
+```
+
+## Boxplot
+
+```{r}
+ggplot(coffee) +
+  aes(x = species, y = sweetness,
+      colour = species) +
+  geom_violin() +
+  geom_boxplot(width = 0.3) +
+  geom_jitter(alpha = 0.4) +
+  theme_light() +
+  theme(legend.position = "bottom")
+```
