@@ -53,6 +53,7 @@ Explore the data and process it into a nice format for plotting! Access each dat
 
 ```{r Wrangle}
 
+df <- tt$fishing
 
 
 ```
